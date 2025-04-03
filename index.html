@@ -26,6 +26,21 @@
     #progressContainer { display: flex; align-items: center; }
     #progressBar { flex-grow: 1; height: 20px; }
     #progressDisplay { margin-left: 10px; font-weight: bold; }
+    /* Styling for the search input */
+    #searchInput {
+      width: 60%;
+      padding: 6px;
+      margin: 4px 0;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+    /* Styling for the select element to enable scrolling */
+    #presetSelect {
+      width: 60%;
+      margin-top: 10px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
   </style>
 </head>
 <body>
@@ -46,13 +61,15 @@
 
   <div class="section" id="presetSection" style="display:none;">
     <h3>Preset Scenario Selection</h3>
-    <label for="presetSelect">Preset Scenario:</label>
-    <select id="presetSelect"></select>
+    <!-- Search input to filter presets -->
+    <input type="text" id="searchInput" placeholder="Search preset scenario..." />
+    <!-- Scrollable select element for presets -->
+    <select id="presetSelect" size="8"></select>
   </div>
 
-  <!-- just for reference,, might need in the future -->
+  <!-- just for reference, might need in the future -->
   <div class="section" id="customFaultSection" style="display:none;">
-    <h3>Custom Faults (if "Custom" scenario selected)</h3>
+    <h3>Custom Faults (if "custom" scenario selected)</h3>
     <div id="customOptions" style="margin-left: 1em;">
       <label><input type="checkbox" id="chk_null" /> Null byte in tags</label><br/>
       <small>Select any combination of faults to include.</small>
@@ -84,6 +101,7 @@
 
     const chooseBtn          = document.getElementById('chooseBtn');
     const outputPathField    = document.getElementById('outputPath');
+    const searchInput        = document.getElementById('searchInput');
     const presetSelect       = document.getElementById('presetSelect');
     const customOptionsDiv   = document.getElementById('customOptions');
     const logPanel           = document.getElementById('logPanel');
@@ -97,31 +115,47 @@
     const presetSection      = document.getElementById('presetSection');
     const customFaultSection = document.getElementById('customFaultSection');
 
+    // Store the full scenario list globally for filtering
+    let fullScenarioList = [];
+
     // --------------------------
     // Request scenario list
     // --------------------------
     ipcRenderer.send('get-scenarios');
     ipcRenderer.on('scenarios-list', (event, scenarioNames) => {
-      presetSelect.innerHTML = "";
+      // Filter out empty names and sort alphabetically
+      fullScenarioList = scenarioNames.filter(s => s.trim() !== "").sort((a, b) => a.localeCompare(b));
+      updatePresetSelect(fullScenarioList);
+    });
 
+    // Function to update the <select> options
+    function updatePresetSelect(list) {
+      presetSelect.innerHTML = "";
       // Add a "custom" option first
       let customOpt = document.createElement("option");
       customOpt.value = "custom";
       customOpt.text = "Custom (choose faults below)";
       presetSelect.appendChild(customOpt);
-
-      // Then add each scenario
-      scenarioNames.forEach(s => {
-        if (s.trim() !== "") {
-          let opt = document.createElement("option");
-          opt.value = s;
-          opt.text = s;
-          presetSelect.appendChild(opt);
-        }
+      list.forEach(s => {
+        let opt = document.createElement("option");
+        opt.value = s;
+        opt.text = s;
+        presetSelect.appendChild(opt);
       });
+    }
+
+    // --------------------------
+    // Search filtering for preset list
+    // --------------------------
+    searchInput.addEventListener('input', () => {
+      let filter = searchInput.value.toLowerCase();
+      let filteredList = fullScenarioList.filter(s => s.toLowerCase().includes(filter));
+      updatePresetSelect(filteredList);
     });
 
+    // --------------------------
     // Directory chooser
+    // --------------------------
     chooseBtn.onclick = () => {
       ipcRenderer.send('choose-directory');
     };
@@ -129,7 +163,7 @@
       outputPathField.value = folderPath;
     });
 
-    // Show/hide custom faults
+    // Show/hide custom faults based on selection value
     presetSelect.onchange = () => {
       if (presetSelect.value === "custom") {
         customFaultSection.style.display = "block";
@@ -154,17 +188,13 @@
         alert("Please select an output directory.");
         return;
       }
-
       let scenario = presetSelect.value;
       let faults = [];
-
-      // If "custom", gather any fault checkboxes
       if (scenario === "custom") {
         if (document.getElementById('chk_null').checked) {
           faults.push('null_byte');
         }
       }
-
       const preview = previewToggle.checked;
       ipcRenderer.send('start-generation', {
         outputDir,
@@ -179,7 +209,6 @@
     ipcRenderer.on('log-update', (_event, message) => {
       logPanel.textContent += message;
       logPanel.scrollTop = logPanel.scrollHeight;
-      // If you want a progress bar, parse lines with "PROGRESS: X"
       const progMatch = message.match(/PROGRESS: (\d+)/);
       if (progMatch) {
         const percent = Number(progMatch[1]);

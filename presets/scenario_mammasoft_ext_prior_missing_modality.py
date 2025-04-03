@@ -37,7 +37,6 @@ class ScenarioMammasoftExtPriorMissingModality(ScenarioBase):
         accession = f"{random_six_digit()}-{random.randint(1000, 9999)}"
         external_date = random_date_yyyymmdd(2012, 2020)
 
-        # We'll produce 4 images labeled Missing1..Missing4
         views = ["Missing1", "Missing2", "Missing3", "Missing4"]
         images = []
         for i, vp in enumerate(views):

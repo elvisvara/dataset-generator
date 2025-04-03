@@ -4,21 +4,34 @@ set -euo pipefail
 # 1) LOAD .env FOR SECRETS & ENV VARS 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 if [ -f "$SCRIPT_DIR/.env" ]; then
-  # Export all variables from .env (ignoring commented lines)
-  export $(grep -v '^#' "$SCRIPT_DIR/.env" | xargs)
+  set -o allexport
+  source "$SCRIPT_DIR/.env"
+  set +o allexport
 fi
 
-# Ensure DB_PW is set (from .env or environment)
+# ensuring DB_PW is set (from .env)
 DB_PW="${DB_PW:-}"
 if [ -z "$DB_PW" ]; then
   echo "[ERROR] DB_PW is not set. Please define it in .env or environment."
   exit 1
 fi
 
-# 2) COLORS & SYMBOLS
+# Check if SSH_KEY is defined; if not, exit with an error.
+if [ -z "${SSH_KEY:-}" ]; then
+  echo "[ERROR] SSH_KEY is not defined in .env. Please set SSH_KEY in your .env file."
+  exit 1
+fi
+
+# Check if an SSH key is already loaded; if not, add the one specified by SSH_KEY.
+if ! ssh-add -l &>/dev/null; then
+  echo "[INFO] Adding SSH key from ${SSH_KEY}"
+  ssh-add "$SSH_KEY"
+fi
+
+
+# 2) just colors to visualize better
 GREEN_CHECK="\033[0;32m\xE2\x9C\x94\033[0m"  
 RED_X="\033[0;31m\xE2\x9C\x97\033[0m"       
-
 
 # 4) PHASE 1: GENERATE STUDIES FOR ALL SCENARIOS
 echo "================================================================"
@@ -37,11 +50,11 @@ GEN_SCRIPT="${GEN_SCRIPT:-"$SCRIPT_DIR/generate_dicom_dataset.py"}"
 
 OUTPUT_BASE="${OUTPUT_BASE:-"$SCRIPT_DIR/generated_data"}"
 
-# Full scenario list
+# add as many scenarios as u like
 SCENARIO_LIST=(
- 
-  "cu_private_tag"
-
+  "pr_raw_not_for_presentation"
+  "pr_tomosynthesis_ris_pacs_mismatch"
+  
 )
 
 echo "[INFO] Using GEN_SCRIPT='$GEN_SCRIPT'"
@@ -68,7 +81,7 @@ echo "================================================================"
 MERGED_DIR="$OUTPUT_BASE/merged_dataset"
 mkdir -p "$MERGED_DIR/dicoms" "$MERGED_DIR/jsons"
 
-# Copy DICOMs and JSON files from each scenario folder
+# Copy DICOMs and JSON files from each scenario folder.. doing this as a bolus "requirement"
 for SCEN_DIR in "$OUTPUT_BASE"/scenario_*_dataset; do
   if [ -d "$SCEN_DIR/dicoms" ]; then
     echo "[MERGE] Merging dicoms from $(basename "$SCEN_DIR")"
@@ -81,9 +94,7 @@ for SCEN_DIR in "$OUTPUT_BASE"/scenario_*_dataset; do
 done
 echo "[INFO] Merged dataset is at: $MERGED_DIR"
 
-
-# 6) PHASE 3: INGEST MERGED DATASET AND WAIT FOR COMPLETION
-
+# 6) PHASE 3: INGEST MERGED DATASET AND WAIT A FEW SECS FOR COMPLETION
 echo "================================================================"
 echo "Phase 3: Ingesting merged dataset..."
 echo "================================================================"
@@ -112,9 +123,7 @@ echo "[INFO] Ingestion complete signal detected."
 echo "[INFO] Waiting an extra 20 seconds to allow DB updates..."
 sleep 20
 
-
 # 7) PHASE 4: QUERY & VERIFY STUDIES
-
 cd "$SCRIPT_DIR" || true
 
 echo "================================================================"
@@ -147,13 +156,11 @@ export PGPASSWORD="$DB_PW"
 COUNT=\$(psql -h 192.168.128.153 -d edge -U root -t -A -c \
 "SELECT COUNT(*) FROM study WHERE instance_uid = '$STUDY_UID';" \
 | sed 's/^ *//;s/ *\$//')
-
 echo "\${COUNT:-0}"
 EOF
 )
 
   RESULT_STR=$(ssh -J "$SSH_BASTION" "$SSH_TARGET" "$SSH_CMD" || echo "0")
-
   COUNT=${RESULT_STR:-0}
 
   if [ "$COUNT" -gt 0 ]; then
@@ -166,3 +173,9 @@ done
 echo
 echo "[INFO] Ingestion verification completed."
 echo "[INFO] All done."
+
+# 8) CLEANUP: Wipe out all generated data so the output folder is empty
+echo "================================================================"
+echo "[INFO] Cleaning up generated dataset..."
+rm -rf "$OUTPUT_BASE"/*
+echo "[INFO] Cleanup complete. Generated dataset folder is now empty."

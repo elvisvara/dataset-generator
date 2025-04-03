@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """
-ScenarioMammasoftExternalPriorRandomPatientID:
 Generate two external prior studies for Mammasoft cases.
 For each external prior study:
   - Fixed patient details for name and birthdate are used, but the patient name is inverted (i.e. given and family names are swapped).
@@ -10,7 +9,6 @@ For each external prior study:
   - A descriptive custom file name is added to each DICOM (in tag "CustomFileName") in the format:
       MammasoftExtPriorRandomPID_Study<studyIndex>_<View>_<InstanceNumber>.dcm
 
-You can later update the fixed patient details with data from another DICOM if needed.
 """
 
 from presets.scenario_base import (
@@ -24,7 +22,6 @@ from presets.scenario_base import (
 import random
 import json
 
-# Helper function to invert a DICOM patient name formatted as "Family^Given"
 def invert_name(name):
     parts = name.split("^")
     if len(parts) == 2:
@@ -44,7 +41,6 @@ class ScenarioMammasoftExternalPriorRandomPatientID(ScenarioBase):
         self.patient_name = invert_name(self.STATIC_PATIENT_NAME)
         self.birth_date_yyyymmdd = self.STATIC_PATIENT_BIRTHDATE
         # Randomly generate a new patient ID (DICOM tag (0010,0020)).
-        # Here we create a 10-digit random number prefixed with "PID-"
         self.patient_id = f"PID-{random.randint(1000000000, 9999999999)}"
 
     def create_external_prior_config(self, is_cancerous=False, study_index=1):
@@ -55,9 +51,7 @@ class ScenarioMammasoftExternalPriorRandomPatientID(ScenarioBase):
         """
         study_uid = random_uid()
         study_id = random_six_digit()
-        # Generate a unique accession number: 6-digit number plus a hyphen and a random 4-digit number.
         accession = f"{random_six_digit()}-{random.randint(1000, 9999)}"
-        # Generate an external prior study date between 2000 and 2020.
         external_date = random_date_yyyymmdd(2000, 2020)
         views = ["RCC", "LCC", "RMLO", "LMLO"]
         images = []
@@ -98,7 +92,6 @@ class ScenarioMammasoftExternalPriorRandomPatientID(ScenarioBase):
         }
 
 if __name__ == "__main__":
-    # For testing: print the generated configuration as JSON.
     scenario = ScenarioMammasoftExternalPriorRandomPatientID()
     config = scenario.build_scenario_config()
     print(json.dumps(config, indent=2))

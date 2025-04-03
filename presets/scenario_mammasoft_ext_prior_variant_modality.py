@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-ScenarioMammasoftExtPriorVariantModality:
 Generate two external prior studies for Mammasoft but use "mg" (lowercase)
-as the Modality (instead of "MG"). Also invert the patient name.
+as the Modality (instead of "MG"). Also invert the patient name.. this seems to be an issue with our ORTHANC configuration.. a ticket has been raised for this an we need to fixn this
 """
 
 import random

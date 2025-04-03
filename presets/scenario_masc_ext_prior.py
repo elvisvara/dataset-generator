@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """
-ScenarioMascExtPrior:
 Generate two external prior studies for MASC cases.
 For each external prior study:
   - Patient details (name, birthdate, and PatientID) are fixed, matching typical MASC DICOM values.

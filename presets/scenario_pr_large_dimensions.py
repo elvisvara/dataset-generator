@@ -8,7 +8,6 @@ class ScenarioLargeDimensions(ScenarioBase):
 
         prior = self.create_prior_config(is_cancerous=False)
         if prior["images"]:
-            # We'll pick the last image to have huge geometry
             big_img = prior["images"][-1]["tags"]
             big_img["Rows"] = 8000
             big_img["Columns"] = 8000
