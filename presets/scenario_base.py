@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """
-ScenarioBase: a common base class for scenario classes.
 
 Key features:
 - A single random patient name, ID, and birthdate is generated and reused

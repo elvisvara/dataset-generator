@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """
-ScenarioMammasoftExtPriorMixedModality:
 Generate two external prior studies for the same Mammasoft patient:
   - The first uses MG views (RCC, LCC, RMLO, LMLO).
   - The second uses MR1..MR4 with Modality = "MR".

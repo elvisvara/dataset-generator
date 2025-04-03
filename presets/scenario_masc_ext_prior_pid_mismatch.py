@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """
-ScenarioMascExtPriorPatientIDMismatch:
 Generate two external prior studies for MASC cases but with a patient ID mismatch.
 For each external prior study:
   - Fixed patient details (name and birthdate) are used as in a typical MASC DICOM.

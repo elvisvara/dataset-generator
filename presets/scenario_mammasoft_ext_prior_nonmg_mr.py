@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """
-ScenarioMammasoftExtPriorNonMgMR:
 Generate two external prior studies for Mammasoft but using "MR" as Modality,
 and inverting the patient name as required.
 """
@@ -37,7 +36,6 @@ class ScenarioMammasoftExtPriorNonMgMR(ScenarioBase):
         accession = f"{random_six_digit()}-{random.randint(1000, 9999)}"
         external_date = random_date_yyyymmdd(2010, 2020)
 
-        # We'll produce 4 images labeled MR1..MR4
         views = ["MR1", "MR2", "MR3", "MR4"]
         images = []
         for i, vp in enumerate(views):

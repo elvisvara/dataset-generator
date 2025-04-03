@@ -263,6 +263,14 @@ def create_mg_dicom(outfile, tags, preview=False):
                     raw_val = 1
             setattr(ds, dicom_name, raw_val)
 
+    if "Modality" in tags:
+        ds.Modality = tags["Modality"]
+    if "SOPClassUID" in tags:
+        ds.SOPClassUID = tags["SOPClassUID"]            
+    if "PresentationIntentType" in tags:
+        ds.PresentationIntentType = tags["PresentationIntentType"]
+
+
     # 9) Private tags
     for k, v in tags.items():
         if k.startswith("Private_"):

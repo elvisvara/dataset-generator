@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """
-ScenarioMammasoftExtPriorPartialMR:
 Generate two external prior studies for Mammasoft with the following twist:
   - In each external prior study, we create 4 images: 3 are MG, 1 is MR.
   - We invert the patient's name from "Family^Given" to "Given^Family".
@@ -33,7 +32,6 @@ class ScenarioMammasoftExtPriorPartialMR(ScenarioBase):
 
     def __init__(self):
         super().__init__()
-        # Invert the name, keep the same birthdate
         self.patient_name = invert_name(self.STATIC_PATIENT_NAME)
         self.birth_date_yyyymmdd = self.STATIC_PATIENT_BIRTHDATE
 
@@ -45,12 +43,9 @@ class ScenarioMammasoftExtPriorPartialMR(ScenarioBase):
         """
         study_uid = random_uid()
         study_id  = random_six_digit()
-        # Accession is 6-digit plus random 4-digit suffix, e.g. "123456-9999"
         accession = f"{random_six_digit()}-{random.randint(1000, 9999)}"
         external_date = random_date_yyyymmdd(2000, 2020)
 
-        # We'll just label the 4 images "RCC", "LCC", "RMLO", "LMLO"
-        # but set the Modality differently for the last one.
         views = ["RCC", "LCC", "RMLO", "LMLO"]
         images = []
         for i, vp in enumerate(views):

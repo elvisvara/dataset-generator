@@ -1,14 +1,3 @@
-# /Users/elvis/Desktop/SUH/presets/scenario_bits_mismatch.py
-"""
-ScenarioBitsMismatch:
-- Produce 1 current study (normal),
-- 1 prior with 4 images. The last image forcibly sets contradictory bits
-  (BitsAllocated=12, BitsStored=15, HighBit=14).
-
- also add 'force_bits_mismatch=True' so that create_mg_dicom can skip
-clamping logic and truly write these mismatched values into the final DICOM.
-"""
-
 from presets.scenario_base import ScenarioBase
 
 class ScenarioBitsMismatch(ScenarioBase):

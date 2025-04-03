@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """
-ScenarioMammasoftExternalPriorTwo:
 Generate two external prior studies for Mammasoft cases. In each study:
   - Patient details (name and birthdate) are fixed—but the patient name is inverted
     (the given name and family name are swapped).
@@ -9,7 +8,7 @@ Generate two external prior studies for Mammasoft cases. In each study:
   - A custom file name is added to each DICOM (in the tag "CustomFileName") in the format:
       MammasoftExtPrior_Study<studyIndex>_<View>_<InstanceNumber>.dcm
 
-You can later update the fixed patient details with data from another DICOM if needed.
+Good thing here is you can later update the fixed patient details with data from another DICOM if needed.
 """
 
 from presets.scenario_base import (
@@ -39,8 +38,6 @@ class ScenarioMammasoftExternalPriorTwo(ScenarioBase):
 
     def __init__(self):
         super().__init__()
-        # Override the randomly generated patient details with fixed values.
-        # Invert the patient name so that first and last names are swapped.
         self.patient_name = invert_name(self.STATIC_PATIENT_NAME)
         self.birth_date_yyyymmdd = self.STATIC_PATIENT_BIRTHDATE
 
@@ -53,9 +50,7 @@ class ScenarioMammasoftExternalPriorTwo(ScenarioBase):
         """
         study_uid = random_uid()
         study_id = random_six_digit()
-        # Generate a unique accession number by combining a 6-digit number with a random 4-digit suffix.
         accession = f"{random_six_digit()}-{random.randint(1000, 9999)}"
-        # Generate an external prior study date between 2000 and 2020.
         external_date = random_date_yyyymmdd(2000, 2020)
         views = ["RCC", "LCC", "RMLO", "LMLO"]
         images = []
@@ -71,9 +66,7 @@ class ScenarioMammasoftExternalPriorTwo(ScenarioBase):
             tags["StudyDescription"] += " - External Prior (Mammasoft)"
             tags["SeriesDescription"] += " - Preset: " + self.SCENARIO_NAME
             tags["cancerous"] = is_cancerous
-            # InstanceNumber 1 through 4 for each study.
             tags["InstanceNumber"] = i + 1
-            # Add a custom file name that is descriptive.
             tags["CustomFileName"] = f"MammasoftExtPrior_Study{study_index}_{vp}_{i+1}.dcm"
             images.append({"tags": tags})
         return {
@@ -97,7 +90,6 @@ class ScenarioMammasoftExternalPriorTwo(ScenarioBase):
         }
 
 if __name__ == "__main__":
-    # For testing purposes: print the scenario configuration as JSON.
     scenario = ScenarioMammasoftExternalPriorTwo()
     config = scenario.build_scenario_config()
     print(json.dumps(config, indent=2))
