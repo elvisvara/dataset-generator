@@ -1,0 +1,210 @@
+{
+    "outputDir": "/Users/elvis/Desktop/test_suh",
+    "current_study": {
+      "cancerous": false,
+      "count": 4,
+      "description": "My customized current study",
+      "images": [
+        {
+          "tags": {
+            "PatientName": "Doe^John",
+            "PatientID": "000001",
+            "StudyDescription": "Non-cancerous Current Study",
+            "ViewPosition": "RCC",
+            "Rows": 256,
+            "Columns": 256,
+            "BitsAllocated": 8,
+            "BitsStored": 8,
+            "HighBit": 7,
+            "SamplesPerPixel": 1,
+            "PhotometricInterpretation": "MONOCHROME2"
+          }
+        },
+        {
+          "tags": {
+            "PatientName": "Doe^John",
+            "PatientID": "000001",
+            "StudyDescription": "Non-cancerous Current Study",
+            "ViewPosition": "LCC",
+            "Rows": 256,
+            "Columns": 256,
+            "BitsAllocated": 8,
+            "BitsStored": 8,
+            "HighBit": 7,
+            "SamplesPerPixel": 1,
+            "PhotometricInterpretation": "MONOCHROME2"
+          }
+        },
+        {
+          "tags": {
+            "PatientName": "Doe^John",
+            "PatientID": "000001",
+            "StudyDescription": "Non-cancerous Current Study",
+            "ViewPosition": "RMLO",
+            "Rows": 256,
+            "Columns": 256,
+            "BitsAllocated": 8,
+            "BitsStored": 8,
+            "HighBit": 7,
+            "SamplesPerPixel": 1,
+            "PhotometricInterpretation": "MONOCHROME2"
+          }
+        },
+        {
+          "tags": {
+            "PatientName": "Doe^John",
+            "PatientID": "000001",
+            "StudyDescription": "Non-cancerous Current Study",
+            "ViewPosition": "LMLO",
+            "Rows": 256,
+            "Columns": 256,
+            "BitsAllocated": 8,
+            "BitsStored": 8,
+            "HighBit": 7,
+            "SamplesPerPixel": 1,
+            "PhotometricInterpretation": "MONOCHROME2"
+          }
+        }
+      ]
+    },
+    "internal_priors": [
+      {
+        "cancerous": false,
+        "count": 4,
+        "description": "Internal Prior 1",
+        "images": [
+          {
+            "tags": {
+              "PatientName": "Doe^John",
+              "PatientID": "000001",
+              "StudyDescription": "Non-cancerous Internal Prior #1",
+              "ViewPosition": "RCC",
+              "Rows": 256,
+              "Columns": 256,
+              "BitsAllocated": 8,
+              "BitsStored": 8,
+              "HighBit": 7,
+              "SamplesPerPixel": 1,
+              "PhotometricInterpretation": "MONOCHROME2"
+            }
+          },
+          {
+            "tags": {
+              "PatientName": "Doe^John",
+              "PatientID": "000001",
+              "StudyDescription": "Non-cancerous Internal Prior #1",
+              "ViewPosition": "LCC",
+              "Rows": 256,
+              "Columns": 256,
+              "BitsAllocated": 8,
+              "BitsStored": 8,
+              "HighBit": 7,
+              "SamplesPerPixel": 1,
+              "PhotometricInterpretation": "MONOCHROME2"
+            }
+          },
+          {
+            "tags": {
+              "PatientName": "Doe^John",
+              "PatientID": "000001",
+              "StudyDescription": "Non-cancerous Internal Prior #1",
+              "ViewPosition": "RMLO",
+              "Rows": 256,
+              "Columns": 256,
+              "BitsAllocated": 8,
+              "BitsStored": 8,
+              "HighBit": 7,
+              "SamplesPerPixel": 1,
+              "PhotometricInterpretation": "MONOCHROME2"
+            }
+          },
+          {
+            "tags": {
+              "PatientName": "Doe^John",
+              "PatientID": "000001",
+              "StudyDescription": "Non-cancerous Internal Prior #1",
+              "ViewPosition": "LMLO",
+              "Rows": 256,
+              "Columns": 256,
+              "BitsAllocated": 8,
+              "BitsStored": 8,
+              "HighBit": 7,
+              "SamplesPerPixel": 1,
+              "PhotometricInterpretation": "MONOCHROME2"
+            }
+          }
+        ]
+      }
+    ],
+    "external_priors": [
+      {
+        "cancerous": true,
+        "type": "external_screening",
+        "count": 4,
+        "description": "External Prior 1",
+        "images": [
+          {
+            "tags": {
+              "PatientName": "Doe^John",
+              "PatientID": "000001",
+              "StudyDescription": "Cancerous External Prior #1",
+              "ViewPosition": "RCC",
+              "Rows": 256,
+              "Columns": 256,
+              "BitsAllocated": 8,
+              "BitsStored": 8,
+              "HighBit": 7,
+              "SamplesPerPixel": 1,
+              "PhotometricInterpretation": "MONOCHROME2"
+            }
+          },
+          {
+            "tags": {
+              "PatientName": "Doe^John",
+              "PatientID": "000001",
+              "StudyDescription": "Cancerous External Prior #1",
+              "ViewPosition": "LCC",
+              "Rows": 256,
+              "Columns": 256,
+              "BitsAllocated": 8,
+              "BitsStored": 8,
+              "HighBit": 7,
+              "SamplesPerPixel": 1,
+              "PhotometricInterpretation": "MONOCHROME2"
+            }
+          },
+          {
+            "tags": {
+              "PatientName": "Doe^John",
+              "PatientID": "000001",
+              "StudyDescription": "Cancerous External Prior #1",
+              "ViewPosition": "RMLO",
+              "Rows": 256,
+              "Columns": 256,
+              "BitsAllocated": 8,
+              "BitsStored": 8,
+              "HighBit": 7,
+              "SamplesPerPixel": 1,
+              "PhotometricInterpretation": "MONOCHROME2"
+            }
+          },
+          {
+            "tags": {
+              "PatientName": "Doe^John",
+              "PatientID": "000001",
+              "StudyDescription": "Cancerous External Prior #1",
+              "ViewPosition": "LMLO",
+              "Rows": 256,
+              "Columns": 256,
+              "BitsAllocated": 8,
+              "BitsStored": 8,
+              "HighBit": 7,
+              "SamplesPerPixel": 1,
+              "PhotometricInterpretation": "MONOCHROME2"
+            }
+          }
+        ]
+      }
+    ]
+  }
+  

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Enhanced DICOM Dataset Generator</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f0f0f0; color: #333; margin: 20px; }
+    h1 { font-size: 1.8em; }
+    .section { margin-bottom: 1em; background: #fff; padding: 10px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    label { margin-right: 0.5em; }
+    input[type=text] { width: 60%; padding: 6px; margin: 4px 0; }
+    button { padding: 8px 14px; margin: 4px 0; cursor: pointer; }
+    select, input[type=checkbox] { margin: 4px 0; }
+    #logPanel {
+      width: 100%;
+      height: 150px;
+      font-family: Consolas, monospace;
+      font-size: 0.9em;
+      background: #222;
+      color: #eee;
+      padding: 8px;
+      overflow-y: scroll;
+      display: none;
+      border-radius: 5px;
+    }
+    #progressContainer { display: flex; align-items: center; }
+    #progressBar { flex-grow: 1; height: 20px; }
+    #progressDisplay { margin-left: 10px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Enhanced DICOM Dataset Generator</h1>
+
+  <div class="section">
+    <h3>Output Settings</h3>
+    <label for="outputPath">Output Directory:</label>
+    <input type="text" id="outputPath" placeholder="Choose folder..." readonly />
+    <button id="chooseBtn">Browse…</button>
+  </div>
+
+  <div class="section" id="modeSelection">
+    <h3>Mode Selection</h3>
+    <button id="presetModeBtn">Preset Mode</button>
+    <button id="powerCustomizeBtn">Power Customize</button>
+  </div>
+
+  <div class="section" id="presetSection" style="display:none;">
+    <h3>Preset Scenario Selection</h3>
+    <label for="presetSelect">Preset Scenario:</label>
+    <select id="presetSelect"></select>
+  </div>
+
+  <!-- just for reference,, might need in the future -->
+  <div class="section" id="customFaultSection" style="display:none;">
+    <h3>Custom Faults (if "Custom" scenario selected)</h3>
+    <div id="customOptions" style="margin-left: 1em;">
+      <label><input type="checkbox" id="chk_null" /> Null byte in tags</label><br/>
+      <small>Select any combination of faults to include.</small>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Additional Options</h3>
+    <label><input type="checkbox" id="previewToggle" /> Preview metadata before generation</label><br/>
+    <label><input type="checkbox" id="logToggle" /> Show generation logs</label>
+  </div>
+
+  <div class="section">
+    <button id="generateBtn" style="display:none;">Generate Dataset (Preset Mode)</button>
+    <button id="saveLogBtn" style="float:right;">Save Logs</button>
+  </div>
+
+  <div class="section" id="progressContainer">
+    <progress id="progressBar" value="0" max="100"></progress>
+    <div id="progressDisplay">0%</div>
+  </div>
+
+  <div class="section">
+    <div id="logPanel"></div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    const chooseBtn          = document.getElementById('chooseBtn');
+    const outputPathField    = document.getElementById('outputPath');
+    const presetSelect       = document.getElementById('presetSelect');
+    const customOptionsDiv   = document.getElementById('customOptions');
+    const logPanel           = document.getElementById('logPanel');
+    const previewToggle      = document.getElementById('previewToggle');
+    const logToggle          = document.getElementById('logToggle');
+    const generateBtn        = document.getElementById('generateBtn');
+    const powerCustomizeBtn  = document.getElementById('powerCustomizeBtn');
+    const progressBar        = document.getElementById('progressBar');
+    const progressDisplay    = document.getElementById('progressDisplay');
+    const saveLogBtn         = document.getElementById('saveLogBtn');
+    const presetSection      = document.getElementById('presetSection');
+    const customFaultSection = document.getElementById('customFaultSection');
+
+    // --------------------------
+    // Request scenario list
+    // --------------------------
+    ipcRenderer.send('get-scenarios');
+    ipcRenderer.on('scenarios-list', (event, scenarioNames) => {
+      presetSelect.innerHTML = "";
+
+      // Add a "custom" option first
+      let customOpt = document.createElement("option");
+      customOpt.value = "custom";
+      customOpt.text = "Custom (choose faults below)";
+      presetSelect.appendChild(customOpt);
+
+      // Then add each scenario
+      scenarioNames.forEach(s => {
+        if (s.trim() !== "") {
+          let opt = document.createElement("option");
+          opt.value = s;
+          opt.text = s;
+          presetSelect.appendChild(opt);
+        }
+      });
+    });
+
+    // Directory chooser
+    chooseBtn.onclick = () => {
+      ipcRenderer.send('choose-directory');
+    };
+    ipcRenderer.on('directory-selected', (_event, folderPath) => {
+      outputPathField.value = folderPath;
+    });
+
+    // Show/hide custom faults
+    presetSelect.onchange = () => {
+      if (presetSelect.value === "custom") {
+        customFaultSection.style.display = "block";
+      } else {
+        customFaultSection.style.display = "none";
+      }
+    };
+
+    // Mode selection
+    document.getElementById('presetModeBtn').onclick = () => {
+      presetSection.style.display = "block";
+      generateBtn.style.display = "inline-block";
+    };
+    powerCustomizeBtn.onclick = () => {
+      ipcRenderer.send('open-power-customize-window');
+    };
+
+    // Generate in preset mode
+    generateBtn.addEventListener('click', () => {
+      const outputDir = outputPathField.value;
+      if (!outputDir) {
+        alert("Please select an output directory.");
+        return;
+      }
+
+      let scenario = presetSelect.value;
+      let faults = [];
+
+      // If "custom", gather any fault checkboxes
+      if (scenario === "custom") {
+        if (document.getElementById('chk_null').checked) {
+          faults.push('null_byte');
+        }
+      }
+
+      const preview = previewToggle.checked;
+      ipcRenderer.send('start-generation', {
+        outputDir,
+        scenario,
+        faults,
+        preview,
+        templateType: "synthetic"
+      });
+    });
+
+    // Show logs from python
+    ipcRenderer.on('log-update', (_event, message) => {
+      logPanel.textContent += message;
+      logPanel.scrollTop = logPanel.scrollHeight;
+      // If you want a progress bar, parse lines with "PROGRESS: X"
+      const progMatch = message.match(/PROGRESS: (\d+)/);
+      if (progMatch) {
+        const percent = Number(progMatch[1]);
+        progressBar.value = percent;
+        progressDisplay.textContent = percent + "%";
+      }
+    });
+
+    ipcRenderer.on('generation-complete', () => {
+      progressBar.value = 100;
+      progressDisplay.textContent = "100%";
+      logPanel.textContent += "\nGeneration complete.\n";
+    });
+
+    // Toggle log panel
+    logToggle.onclick = () => {
+      logPanel.style.display = logToggle.checked ? "block" : "none";
+    };
+
+    // Save logs
+    saveLogBtn.onclick = () => {
+      ipcRenderer.send('save-logs', logPanel.textContent);
+    };
+  </script>
+</body>
+</html>
